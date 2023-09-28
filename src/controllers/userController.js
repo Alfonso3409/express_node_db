@@ -4,13 +4,13 @@ const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const morgan = require("morgan");
 const pool = require("../../db");
-// const dotenv = require("dotenv");
+const dotenv = require("dotenv");
 
-// dotenv.config();
+dotenv.config();
 
-// if (!process.env.WEB_TOKEN) {
-//   throw new Error("WEB_TOKEN is not defined in .env file");
-// }
+if (!process.env.WEB_TOKEN) {
+  throw new Error("WEB_TOKEN is not defined in .env file");
+}
 
 const app = express();
 app.use(cors());
@@ -31,28 +31,30 @@ const verifyToken = (req, res, next) => {
 };
 
 const getUser = async (req, res) => {
+  console.log("I am in here");
   try {
-    const results = await pool.query("SELECT * FROM admin");
+    const results = await pool.query("SELECT * FROM user");
     res.status(200).json(results.rows);
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch admins." });
+    res.status(500).json({ message: "Failed to fetch user." });
   }
 };
 
 const getSingleUser = async (req, res) => {
   try {
     const results = await pool.query(
-      "SELECT * FROM admin WHERE admin_id = $1",
+      "SELECT * FROM users WHERE users_id = $1",
       [req.params.id]
     );
     res.status(200).json(results.rows);
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch admin." });
+    res.status(500).json({ message: "Failed to fetch user." });
   }
 };
 
 const newUser = async (req, res) => {
   const { username, email, password } = req.body;
+  console.log(req.body);
 
   let missingFields = [];
 
@@ -78,6 +80,10 @@ const newUser = async (req, res) => {
       [username, email, hashPassword]
     );
     res.status(200).send("Inserted into table");
+    const accessToken = jwt.sign({ username }, process.env.WEB_TOKEN, {
+      expiresIn: "15m",
+    });
+    return res.status(200).json({ token: accessToken });
   } catch (error) {
     console.error("Error:", error); // Log the entire error object
     res
@@ -93,25 +99,27 @@ const login = async (req, res) => {
   }
 
   try {
-    const results = await pool.query("SELECT * FROM user WHERE username = $1", [
-      username,
-    ]);
+    const results = await pool.query(
+      "SELECT * FROM users WHERE username = $1",
+      [username]
+    );
     if (results.rows.length === 0) {
       return res.status(400).send("Username not found");
     }
 
-    const password = results.rows[0].email;
-    const match = await bcrypt.compare(email, password);
+    const hashedPassword = results.rows[0].password;
+    const match = await bcrypt.compare(password, hashedPassword);
     if (match) {
       const accessToken = jwt.sign({ username }, process.env.WEB_TOKEN, {
         expiresIn: "15m",
       });
-      return res.status(200).send(accessToken);
+      return res.status(200).json({ token: accessToken });
     } else {
-      return res.status(400).send("Your password or email is incorrect");
+      return res.status(400).send("Your password or username is incorrect");
     }
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    console.error("Error:", error); // Log the entire error object
+    res.status(500).send("Internal Server Error: " + error.message);
   }
 };
 

@@ -1,4 +1,5 @@
 const express = require("express");
+const axios = require("axios");
 const cors = require("cors");
 const app = express();
 const PORT = 3002;
@@ -14,6 +15,9 @@ app.use(cors());
 // });
 
 app.use("/api", userRoutes);
+const productRoutes = require("./src/routes/productRoutes");
+app.use("/api", productRoutes);
+
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server is running on ${PORT}`);
 });
@@ -23,11 +27,14 @@ app.get("/api/data-endpoint", (req, res) => {
   res.json({ message: "Hello from Express" });
 });
 
-app.get("/api/products", async (req, res) => {
-  try {
-    const response = await axios.get("https://fakestoreapi.com/products");
-    res.json(response.data);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch products." });
-  }
-});
+// app.get("/api/products", async (req, res) => {
+//   try {
+//     const response = await axios.get("https://fakestoreapi.com/products");
+//     res.json(response.data);
+//   } catch (error) {
+//     res.status(500).json({ message: "Failed to fetch products." });
+//   }
+// });
+
+// const productRoutes = require("./src/routes/productRoutes");
+// app.use("/api", productRoutes);
