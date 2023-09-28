@@ -1,18 +1,16 @@
 const express = require("express");
-const axios = require("axios");
+const router = express.Router();
 
-const app = express();
-const PORT = 5000;
+const {
+  getAllProducts,
+  getProductById,
+  addProduct,
+  updateProduct,
+  deleteProduct,
+} = require("../controllers/productController");
 
-app.get("/api/products", async (req, res) => {
-  try {
-    const response = await axios.get("https://fakestoreapi.com/products");
-    res.json(response.data);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch products." });
-  }
-});
-
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+router.get("/api/products", getAllProducts);
+router.get("/api/products/:id", getProductById);
+router.post("/api/products", addProduct);
+router.put("/api/products/:id", updateProduct);
+router.delete("/api/products/:id", deleteProduct);

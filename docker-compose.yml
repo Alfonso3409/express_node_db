@@ -1,16 +1,28 @@
 version: "3"
 
 services:
+  backend:
+    build: .
+    ports:
+      - "3002:3002"
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - PORT=3002
+    depends_on:
+      - db
+
   db:
-    image: postgres
+    image: postgres:13
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 97221991
       POSTGRES_DB: Capstone
-
-  backend:
-    build: .
     ports:
-      - "5000:5000"
-    depends_on:
-      - db
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
