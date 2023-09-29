@@ -14,7 +14,7 @@ if (!process.env.WEB_TOKEN) {
 
 const app = express();
 app.use(cors());
-app.use(morgan("combined")); // using morgan for logging
+app.use(morgan("combined")); // using morgan for logging still learning its use
 
 // to verify JWT token
 const verifyToken = (req, res, next) => {
@@ -69,14 +69,14 @@ const newUser = async (req, res) => {
   const re =
     /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
   const salt = await bcrypt.genSalt(10);
-  const hashPassword = await bcrypt.hash(password, salt); // Hash the password, not the email
+  const hashPassword = await bcrypt.hash(password, salt);
   if (!re.exec(email)) {
     return res.status(400).send("Email is invalid");
   }
 
   try {
     await pool.query(
-      "INSERT INTO users(username, email, password) VALUES($1, $2, $3)", // Only three columns and three values
+      "INSERT INTO users(username, email, password) VALUES($1, $2, $3)",
       [username, email, hashPassword]
     );
     res.status(200).send("Inserted into table");
@@ -85,7 +85,7 @@ const newUser = async (req, res) => {
     });
     return res.status(200).json({ token: accessToken });
   } catch (error) {
-    console.error("Error:", error); // Log the entire error object
+    console.error("Error:", error);
     res
       .status(400)
       .send("An error occurred. Check the server logs for details.");
@@ -118,7 +118,7 @@ const login = async (req, res) => {
       return res.status(400).send("Your password or username is incorrect");
     }
   } catch (error) {
-    console.error("Error:", error); // Log the entire error object
+    console.error("Error:", error);
     res.status(500).send("Internal Server Error: " + error.message);
   }
 };

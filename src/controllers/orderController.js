@@ -20,7 +20,7 @@ const placeOrder = async (req, res) => {
 
   try {
     // Insert order details into the database
-    // You might also need to clear the cart after placing an order
+    //  need to clear the cart after placing an order
     res.status(200).send("Order placed successfully");
   } catch (error) {
     res.status(500).json({ message: "Failed to place order." });
